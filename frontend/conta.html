@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar na conta — Alone</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-soft">
+  <header class="topbar"><div class="container topbar-inner"><a class="logo" href="index.html"><img src="assets/alone-services-logo.svg" alt="Alone Services" /></a><nav class="nav"><a href="index.html">Início</a><a href="meus-pedidos.html">Meus pedidos</a><a href="produtosfeitos.html">Projetos feitos</a></nav><a class="auth-header-button is-authenticated" href="conta.html">Log-in</a></div></header>
+  <main class="section account-page"><div class="container account-container"><a class="back-link" href="index.html">← Voltar para o início</a><div id="account-state" class="account-card"><span class="eyebrow">Sua conta</span><h1 id="auth-title">Entre para acompanhar suas ideias.</h1><p id="auth-description">Crie sua conta uma vez e acompanhe pedidos, suporte e projetos sempre no mesmo lugar.</p><div class="auth-tabs"><button class="auth-tab active" type="button" data-mode="login">Entrar</button><button class="auth-tab" type="button" data-mode="register">Criar conta</button></div><form id="auth-form" class="auth-form"><div id="auth-name-field" class="field" hidden><label for="auth-name">Nome completo</label><input id="auth-name" type="text" autocomplete="name" /></div><div class="field"><label for="auth-email">Gmail ou e-mail</label><input id="auth-email" type="email" autocomplete="email" required /></div><div class="field"><label for="auth-password">Senha</label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" required /><span id="auth-password-hint" class="field-hint" hidden>Mínimo de 8 caracteres, com letras e números.</span></div><button id="auth-submit" class="btn btn-primary btn-block" type="submit">Entrar</button><p id="account-error" class="form-error" hidden></p></form><div class="auth-divider"><span>ou continue com</span></div><div class="social-login"><a class="social-button social-google" href="/api/auth/google/start"><span>G</span> Continuar com Google</a><a class="social-button social-github" href="/api/auth/github/start"><span>◆</span> Continuar com GitHub</a></div></div></div></main>
+  <script>
+    const API = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
+    const state = document.getElementById('account-state');
+    const form = document.getElementById('auth-form');
+    const error = document.getElementById('account-error');
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get('next') && params.get('next').startsWith('/') === false ? 'pedido.html' : (params.get('next') || 'pedido.html');
+    let mode = 'login';
+    function showError(message) { error.textContent = message; error.hidden = false; }
+    function connectionError() { return 'Não foi possível conectar ao servidor. Inicie o backend com: cd backend e npm.cmd start'; }
+    function setMode(nextMode) {
+      mode = nextMode;
+      document.querySelectorAll('.auth-tab').forEach((tab) => tab.classList.toggle('active', tab.dataset.mode === mode));
+      document.getElementById('auth-name-field').hidden = mode !== 'register';
+      document.getElementById('auth-password-hint').hidden = mode !== 'register';
+      document.getElementById('auth-submit').textContent = mode === 'register' ? 'Criar minha conta' : 'Entrar';
+      document.getElementById('auth-title').textContent = mode === 'register' ? 'Crie seu espaço de criação.' : 'Entre para acompanhar suas ideias.';
+      document.getElementById('auth-description').textContent = mode === 'register' ? 'Use seu e-mail e uma senha forte. Seus projetos e conversas de suporte ficam vinculados à sua conta.' : 'Acesse seus pedidos, prévias e o suporte do agente em um só lugar.';
+      error.hidden = true;
+    }
+    function showVerification(email, developmentCode) {
+      state.innerHTML = `<span class="eyebrow">Confirme seu Gmail</span><h1>Digite o código recebido.</h1><p>Enviamos um código de 6 dígitos para <strong>${email}</strong>. Ele expira em 10 minutos.</p><form id="verification-form" class="auth-form"><div class="field"><label for="verification-code">Código de confirmação</label><input id="verification-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required /></div><button id="verification-submit" class="btn btn-primary btn-block" type="submit">Confirmar e entrar</button><p id="verification-error" class="form-error" hidden></p></form><button id="resend-verification" class="btn btn-ghost btn-block" type="button">Enviar outro código</button>${developmentCode ? `<p class="field-hint dev-code">Modo local: código ${developmentCode}</p>` : ''}`;
+      const verificationForm = document.getElementById('verification-form');
+      const verificationError = document.getElementById('verification-error');
+      verificationForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submit = document.getElementById('verification-submit');
+        submit.disabled = true;
+        verificationError.hidden = true;
+        try {
+          const response = await fetch(`${API}/api/auth/verify-email`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email, code: document.getElementById('verification-code').value.trim() }) });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'Não foi possível confirmar o código.');
+          window.location.href = next;
+        } catch (verificationFailure) {
+          verificationError.textContent = verificationFailure.message;
+          verificationError.hidden = false;
+          submit.disabled = false;
+        }
+      });
+      document.getElementById('resend-verification').addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+          const response = await fetch(`${API}/api/auth/resend-verification`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email }) });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'Não foi possível reenviar.');
+          button.textContent = data.developmentCode ? `Novo código: ${data.developmentCode}` : 'Novo código enviado';
+        } catch (resendFailure) {
+          button.textContent = resendFailure.message;
+          button.disabled = false;
+        }
+      });
+    }
+    document.querySelectorAll('.auth-tab').forEach((tab) => tab.addEventListener('click', () => setMode(tab.dataset.mode)));
+    if (params.get('login') === 'error') showError(params.get('message') || 'Não foi possível entrar.');
+    document.querySelectorAll('.social-login a').forEach((link) => { link.href = `${API}${link.getAttribute('href')}?next=${encodeURIComponent(next)}`; });
+    fetch(`${API}/api/auth/providers`).then((response) => response.json()).then((providers) => {
+      document.querySelectorAll('.social-login a').forEach((link) => {
+        const provider = link.href.includes('/google/') ? 'google' : 'github';
+        if (!providers[provider]) { link.classList.add('is-unavailable'); link.title = `Configure as credenciais do ${provider} no backend/.env`; }
+      });
+    }).catch(() => {});
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault(); error.hidden = true;
+      const submit = document.getElementById('auth-submit'); submit.disabled = true; submit.textContent = 'Aguarde...';
+      const payload = { email: document.getElementById('auth-email').value.trim(), password: document.getElementById('auth-password').value };
+      if (mode === 'register') payload.name = document.getElementById('auth-name').value.trim();
+      try {
+        const response = await fetch(`${API}/api/auth/${mode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) });
+        const data = await response.json();
+        if (data.verificationRequired) {
+          showVerification(data.email || payload.email, data.developmentCode);
+        } else if (!response.ok) {
+          throw new Error(data.error || 'Não foi possível autenticar.');
+        } else {
+          window.location.href = next;
+        }
+      } catch (authError) { showError(authError instanceof TypeError ? connectionError() : authError.message); submit.disabled = false; submit.textContent = mode === 'register' ? 'Criar minha conta' : 'Entrar'; }
+    });
+    fetch(`${API}/api/auth/me`, { credentials: 'include' }).then((response) => response.ok ? response.json() : null).then((data) => {
+      if (!data || !data.user) return;
+      state.innerHTML = `<span class="eyebrow">Conta conectada</span><h1>Olá, ${data.user.name}.</h1><p>${data.user.email}</p><div class="account-actions"><a class="btn btn-primary" href="meus-pedidos.html">Ver meus pedidos</a><a class="btn btn-ghost" href="pedido.html">Criar uma ideia</a><button class="btn btn-ghost" id="logout">Sair</button></div>`;
+      document.getElementById('logout').addEventListener('click', async () => { await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' }); window.location.reload(); });
+    });
+  </script>
+<script>document.querySelector('label[for="auth-email"]')?.replaceChildren(document.createTextNode('Gmail'));</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "amds-backend",
+  "version": "1.0.0",
+  "description": "AMDS - Plataforma onde desenvolvedores recebem pedidos de sites, apps e jogos",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "amds",
+    "sites",
+    "apps",
+    "jogos",
+    "freelance"
+  ],
+  "author": "AMDS",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.7.0",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^10.0.10"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Meus pedidos — Alone</title><link rel="stylesheet" href="style.css" /></head>
+<body class="page-soft">
+  <header class="topbar"><div class="container topbar-inner"><a href="index.html" class="logo">alone<span>/ai</span></a><nav class="nav"><a href="index.html#processo">Como funciona</a><a href="pedido.html">Nova criação</a></nav><span class="nav-note">seu espaço</span></div></header>
+  <main class="section orders-page"><div class="container orders-container"><a class="back-link" href="index.html">← Voltar para o início</a><div class="creation-heading"><span class="eyebrow">Seu espaço</span><h1>Meus pedidos</h1><p>Acompanhe suas ideias, pagamentos e projetos gerados.</p></div><div class="orders-toolbar"><input id="order-search" type="search" placeholder="Buscar por ID do pedido" aria-label="Buscar pedido" /><button id="refresh-orders" class="btn btn-ghost">Atualizar <span aria-hidden="true">↻</span></button></div><div id="orders-list" class="orders-list"><p class="loading">Carregando seus pedidos...</p></div><a href="pedido.html" class="empty-create">+ Criar uma nova ideia</a></div></main>
+  <div id="modal" class="modal" hidden><div class="modal-backdrop" data-close></div><div class="modal-box" role="dialog" aria-modal="true"><button class="modal-close" data-close aria-label="Fechar">×</button><div id="modal-content"></div></div></div><div id="toast" class="toast" hidden></div><script src="script.js"></script>
+</body></html>

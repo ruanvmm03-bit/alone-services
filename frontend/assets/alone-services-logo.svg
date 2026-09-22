@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" role="img" aria-labelledby="title desc">
+  <title id="title">Alone Services</title>
+  <desc id="desc">Logotipo laranja da Alone Services</desc>
+  <g fill="#ff6500">
+    <path d="M74 173 213 25l139 148h-47L213 78l-92 95H74Z"/>
+    <circle cx="369" cy="171" r="22"/>
+    <path d="M585 25H443c-45 0-77 28-77 66s32 66 77 66h113c13 0 22 7 22 17s-9 17-22 17H423l-36 48h169c45 0 77-28 77-66s-32-66-77-66H443c-13 0-22-7-22-17s9-17 22-17h106l36-48Z"/>
+    <circle cx="629" cy="171" r="22"/>
+  </g>
+  <text x="360" y="258" text-anchor="middle" fill="#ff6500" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" letter-spacing="13">ALONE SERVICES</text>
+</svg>
